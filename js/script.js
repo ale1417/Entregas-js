@@ -4,9 +4,9 @@
 const MESES = 12;
 let ahorroMensual;
 let totalAhorro = 0;
-const historialAhorro = []; // array para registrar cada mes
+const historialAhorro = []; //
 
-// Función: Solicitar ahorro mensual (Entrada)
+// Función: Solicitar ahorro mensual
 function solicitarAhorro() {
   ahorroMensual = parseFloat(
     prompt("Ingrese cuánto desea ahorrar cada mes (solo números):")
@@ -22,7 +22,7 @@ function solicitarAhorro() {
   }
 }
 
-// Función: Calcular ahorro total con bucle for y registrar en array (Procesamiento)
+// Función: Calcular ahorro total con bucle for y registrar en array
 function calcularAhorroTotal() {
   totalAhorro = 0;
   historialAhorro.length = 0; // limpiar array si ya fue utilizado antes
@@ -33,7 +33,7 @@ function calcularAhorroTotal() {
   }
 }
 
-// Función: Mostrar resultado con confirm y alert (Salida)
+// Función: Mostrar resultado con confirm y alert
 function mostrarResultado() {
   let mensaje = "Resumen de ahorro por mes:\n";
   historialAhorro.forEach((valor, index) => {
@@ -49,7 +49,7 @@ function mostrarResultado() {
   }
 }
 
-// Invocación ordenada de funciones
+// Invocación de funciones
 solicitarAhorro();
 calcularAhorroTotal();
 mostrarResultado();
