@@ -1,57 +1,89 @@
-// script.js
-
-// Constantes y variables
 const MESES = 12;
-let ahorroMensual;
-let totalAhorro = 0;
-const historialAhorro = []; //
+const form = document.getElementById("formAhorro");
+const input = document.getElementById("inputAhorro");
+const resultadoDiv = document.getElementById("resultado");
+const btnHistorial = document.getElementById("btnHistorial");
+const btnLimpiar = document.getElementById("btnLimpiar");
 
-// Función: Solicitar ahorro mensual
-function solicitarAhorro() {
-  ahorroMensual = parseFloat(
-    prompt("Ingrese cuánto desea ahorrar cada mes (solo números):")
-  );
-  if (isNaN(ahorroMensual) || ahorroMensual <= 0) {
-    alert("Por favor ingrese un valor válido mayor a 0.");
-    solicitarAhorro();
-  } else {
-    console.log(
-      "Valor de ahorro mensual ingresado correctamente:",
-      ahorroMensual
-    );
-  }
-}
+function calcularAhorro(ahorroMensual) {
+  const historial = [];
+  let total = 0;
 
-// Función: Calcular ahorro total con bucle for y registrar en array
-function calcularAhorroTotal() {
-  totalAhorro = 0;
-  historialAhorro.length = 0; // limpiar array si ya fue utilizado antes
   for (let i = 1; i <= MESES; i++) {
-    totalAhorro += ahorroMensual;
-    historialAhorro.push(totalAhorro);
-    console.log(`Mes ${i}: ahorro acumulado $${totalAhorro}`);
+    total += ahorroMensual;
+    historial.push({ mes: i, ahorro: total });
   }
+
+  localStorage.setItem("historialAhorro", JSON.stringify(historial));
+  mostrarResultado(historial, total);
 }
 
-// Función: Mostrar resultado con confirm y alert
-function mostrarResultado() {
-  let mensaje = "Resumen de ahorro por mes:\n";
-  historialAhorro.forEach((valor, index) => {
-    mensaje += `Mes ${index + 1}: $${valor}\n`;
+function mostrarResultado(historial, total) {
+  resultadoDiv.classList.remove("d-none");
+  resultadoDiv.innerHTML = `<strong>Total ahorrado al final del año:</strong> $${total}<br/><br/>`;
+
+  historial.forEach(item => {
+    resultadoDiv.innerHTML += `Mes ${item.mes}: $${item.ahorro}<br/>`;
   });
-  mensaje += `\nTotal ahorrado al final del año: $${totalAhorro}`;
+}
 
-  let confirmar = confirm("¿Desea ver el detalle de su ahorro mensual?");
-  if (confirmar) {
-    alert(mensaje);
+function mostrarHistorialGuardado() {
+  resultadoDiv.classList.remove("d-none");
+
+  const data = localStorage.getItem("historialAhorro");
+
+  if (!data) {
+    resultadoDiv.innerHTML = "ℹ️ No hay historial guardado.";
+    return;
+  }
+
+  let historial;
+  try {
+    historial = JSON.parse(data);
+  } catch (e) {
+    resultadoDiv.innerHTML = "❌ Error al leer el historial guardado.";
+    return;
+  }
+
+  if (!Array.isArray(historial) || historial.length === 0) {
+    resultadoDiv.innerHTML = "⚠️ El historial está vacío.";
+    return;
+  }
+
+  let total = historial[historial.length - 1].ahorro;
+
+  resultadoDiv.innerHTML = `<strong>Historial recuperado desde localStorage:</strong><br/><br/>`;
+  historial.forEach((item) => {
+    resultadoDiv.innerHTML += `Mes ${item.mes}: $${item.ahorro}<br/>`;
+  });
+  resultadoDiv.innerHTML += `<br/><strong>Total:</strong> $${total}`;
+}
+
+function limpiarHistorial() {
+  localStorage.removeItem("historialAhorro");
+
+  const verificacion = localStorage.getItem("historialAhorro");
+  resultadoDiv.classList.remove("d-none");
+
+  if (!verificacion) {
+    resultadoDiv.innerHTML = "✅ Historial eliminado correctamente.";
   } else {
-    alert(`Total ahorrado al final del año: $${totalAhorro}`);
+    resultadoDiv.innerHTML = "⚠️ Error al intentar eliminar el historial.";
   }
 }
 
-// Invocación de funciones
-solicitarAhorro();
-calcularAhorroTotal();
-mostrarResultado();
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const valor = parseFloat(input.value);
 
-console.log("Simulador finalizado correctamente.");
+  if (isNaN(valor) || valor <= 0) {
+    resultadoDiv.classList.remove("d-none");
+    resultadoDiv.innerHTML = "Por favor, ingresá un número válido mayor a 0.";
+    return;
+  }
+
+  calcularAhorro(valor);
+});
+
+btnHistorial.addEventListener("click", mostrarHistorialGuardado);
+btnLimpiar.addEventListener("click", limpiarHistorial);
